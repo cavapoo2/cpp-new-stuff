@@ -1,0 +1,26 @@
+I tried creating shutdown method. This seems to work.
+Generally if you create additional threads within a scope then best to join them within that scope, unless
+you intend for them to become detached. 
+
+TEST
+{ //scope start
+
+//start LSM (which creates threads)
+
+//run test
+
+//call LSM method to join the threads
+
+}//scope end
+
+You can't always rely on the destructor or using a delay. The delay just stalls the LSM calling
+the LSM destructor since its the test thread (the main thread) that calls the LSM destructor. 
+
+When the test thread calls the LSM destructor since its outside the scope
+then the LSM threads must become detached (can't be joined anymore). Those threads will only be terminated
+when main ends, hence they get carried over to the next test. All these weird exceptions are
+probably a sympton of these extra threads running. 
+
+I'm not sure why its sometimes works ok. Maybe its just timing,maybe the 
+threads are still within scope briefly and can therefore be joined ok. 
+
